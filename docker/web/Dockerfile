@@ -1,4 +1,5 @@
 FROM debian:bookworm
+LABEL author="Rían Errity <errityr@tcd.ie>"
 
 RUN apt-get update && \
     apt-get install -y python3 python3-pip python3-aiortc python3-aiohttp git libavdevice-dev libavfilter-dev libopus-dev libvpx-dev pkg-config &&\

@@ -32,4 +32,4 @@ RUN /bin/bash /kaldi/tools/extras/check_dependencies.sh --openblas-root="/kaldi/
 # Build Kaldi
 RUN cd /kaldi/tools && make
 
-ENTRYPOINT ["/bin/bash","-c"]
+ENTRYPOINT ["tail", "-f", "/dev/null"]
