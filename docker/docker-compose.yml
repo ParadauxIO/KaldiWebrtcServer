@@ -1,9 +1,11 @@
 version: '3.3'
 services:
   kaldi:
-    image: "danijel3/kaldi-online-tcp:aspire"
+    build: 
+      context: "./kaldi/"
   web:
-    image: "danijel3/kaldi-webrtc"
+    build: 
+      context: "./web/"
     volumes:
       - ${PWD}/servers.json:/server/servers.json
     ports:
