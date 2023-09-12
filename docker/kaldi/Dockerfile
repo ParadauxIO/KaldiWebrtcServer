@@ -38,7 +38,8 @@ RUN mkdir -p /kaldi/OpenBLAS/lib && cp /kaldi/OpenBLAS/libopenblas.so /kaldi/Ope
 RUN cd /kaldi/src && /bin/bash /kaldi/src/configure --shared --openblas-root="/kaldi/OpenBLAS"
 
 # Build Kaldi & its respective tools.
-RUN cd /kaldi/src && make depend -j 8 && \
+RUN apt-get install -y liblapack-dev libatlas-base-dev && \
+    cd /kaldi/src && make depend -j 8 && \
     make -j 8 && \
     cd ../cmake && \
     mkdir -p build && \
