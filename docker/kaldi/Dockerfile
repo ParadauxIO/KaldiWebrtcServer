@@ -32,21 +32,10 @@ RUN /bin/bash /kaldi/tools/extras/check_dependencies.sh --openblas-root="/kaldi/
 # Build Kaldi
 RUN cd /kaldi/tools && make
 
-# Move libopenblas to where it is expected to be
-RUN mkdir -p /kaldi/OpenBLAS/lib && cp /kaldi/OpenBLAS/libopenblas.so /kaldi/OpenBLAS/lib/libopenblas.so
+RUN mkdir -p /kaldi/build && cd /kaldi/build && \
+  cmake -DCMAKE_INSTALL_PREFIX=../dist .. && \
+  cmake --build . --target install -- -j2
 
-RUN cd /kaldi/src && /bin/bash /kaldi/src/configure --shared --openblas-root="/kaldi/OpenBLAS"
-
-# Build Kaldi & its respective tools.
-RUN apt-get install -y liblapack-dev libatlas-base-dev && \
-    cd /kaldi/src && make depend -j 8 && \
-    make -j 8 && \
-    cd ../cmake && \
-    mkdir -p build && \
-    cmake -DCMAKE_INSTALL_PREFIX=../dist .. && \
-    cmake --build . --target install -- -j8
-
-# CMake Approach
 ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 # online.conf 
