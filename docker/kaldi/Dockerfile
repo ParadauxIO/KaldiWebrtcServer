@@ -36,7 +36,18 @@ RUN mkdir -p /kaldi/build && cd /kaldi/build && \
   cmake -DCMAKE_INSTALL_PREFIX=../dist .. && \
   cmake --build . --target install -- -j2
 
-ENTRYPOINT ["tail", "-f", "/dev/null"]
+RUN mkdir -p /
+
+ENTRYPOINT ["online2-tcp-nnet3-decode-faster --config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online.conf \
+   --cmvn-config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online_cmvn.conf \
+   --max-active=7000 \
+   --beam=15.0 \
+   --lattice-beam=8.0 \
+   --acoustic-scale=1 \
+   --frame-subsampling-factor=3 \
+   /kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/final.mdl \
+   /kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/HCLG.fst \
+   /kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/words.txt"]
 
 # online.conf 
 # online_cmvn.conf
@@ -46,13 +57,3 @@ ENTRYPOINT ["tail", "-f", "/dev/null"]
 
 # 
 
-# online2-tcp-nnet3-decode-faster --config=exp_train_march23/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online.conf \
-#    --cmvn-config=exp_train_march23/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online_cmvn.conf \
-#    --max-active=7000 \
-#    --beam=15.0 \
-#    --lattice-beam=8.0 \
-#    --acoustic-scale=1 \
-#    --frame-subsampling-factor=3 \
-#    exp_train_march23/chain/tdnn1i_sp_ep9_specaug_subsample_online/final.mdl \
-#    exp_train_march23/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/HCLG.fst \
-#    exp_train_march23/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/words.txt

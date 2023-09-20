@@ -1,8 +1,16 @@
 version: '3.3'
 services:
   kaldi:
+    restart: always
     build: 
       context: "./kaldi/"
+    volumes:
+      - ./model:/kaldi/model
+    ports:
+      - "5050:5050"
+    networks:
+      - kaldirtc
+
   web:
     build: 
       context: "./web/"
@@ -10,3 +18,8 @@ services:
       - ${PWD}/servers.json:/server/servers.json
     ports:
       - "8080:8080"
+    networks:
+      - kaldirtc
+
+networks:
+  kaldirtc:
