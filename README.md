@@ -1,5 +1,7 @@
 # Kaldi WebRTC server demo
 
+sox record.wav -c 1 -r 16000 record_downsampled.wav
+
 ![](demo.gif)
 
 This is a demonstration of realtime online speech recognition using the [Kaldi](https://kaldi-asr.org) 

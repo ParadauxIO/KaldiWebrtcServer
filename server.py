@@ -29,49 +29,60 @@ async def index(request):
 
 
 async def offer(request):
-    kaldi_server = await kaldi_server_queue.get()
-    if not kaldi_server:
-        raise HTTPServiceUnavailable()
+    try:
+        kaldi_server = await kaldi_server_queue.get()
+        if not kaldi_server:
+            raise HTTPServiceUnavailable("No Kaldi server available")
 
-    params = await request.json()
-    offer = RTCSessionDescription(
-        sdp=params['sdp'],
-        type=params['type'])
+        params = await request.json()
 
-    pc = RTCPeerConnection()
+        if 'sdp' not in params or 'type' not in params:
+            raise web.HTTPBadRequest(reason="Missing 'sdp' or 'type' in request")
 
-    kaldi = KaldiSink(pc, kaldi_server)
+        offer = RTCSessionDescription(
+            sdp=params['sdp'],
+            type=params['type'])
 
-    @pc.on('datachannel')
-    async def on_datachannel(channel):
-        await kaldi.set_text_channel(channel)
+        pc = RTCPeerConnection()
 
-    @pc.on('iceconnectionstatechange')
-    async def on_iceconnectionstatechange():
-        if pc.iceConnectionState == 'failed':
-            await pc.close()
+        kaldi = KaldiSink(pc, kaldi_server)
 
-    @pc.on('track')
-    async def on_track(track):
-        if track.kind == 'audio':
-            await kaldi.set_audio_track(track)
+        @pc.on('datachannel')
+        async def on_datachannel(channel):
+            await kaldi.set_text_channel(channel)
 
-        @track.on('ended')
-        async def on_ended():
-            await kaldi.stop()
+        @pc.on('iceconnectionstatechange')
+        async def on_iceconnectionstatechange():
+            if pc.iceConnectionState == 'failed':
+                await pc.close()
 
-    await pc.setRemoteDescription(offer)
-    answer = await pc.createAnswer()
-    await pc.setLocalDescription(answer)
+        @pc.on('track')
+        async def on_track(track):
+            if track.kind == 'audio':
+                await kaldi.set_audio_track(track)
 
-    await kaldi.start()
+            @track.on('ended')
+            async def on_ended():
+                await kaldi.stop()
 
-    return web.Response(
-        content_type='application/json',
-        text=json.dumps({
-            'sdp': pc.localDescription.sdp,
-            'type': pc.localDescription.type
-        }))
+        await pc.setRemoteDescription(offer)
+        answer = await pc.createAnswer()
+        await pc.setLocalDescription(answer)
+
+        await kaldi.start()
+
+        return web.Response(
+            content_type='application/json',
+            text=json.dumps({
+                'sdp': pc.localDescription.sdp,
+                'type': pc.localDescription.type
+            }))
+
+    except Exception as e:
+        return web.Response(
+            status=500,
+            text=str(e)
+        )
 
 
 if __name__ == '__main__':

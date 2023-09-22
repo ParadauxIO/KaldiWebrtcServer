@@ -36,4 +36,18 @@ RUN mkdir -p /kaldi/build && cd /kaldi/build && \
 RUN mkdir -p /
 
 # ENTRYPOINT [ "tail", "-f", "/dev/null" ]
-ENTRYPOINT ["/kaldi/dist/bin/online2-tcp-nnet3-decode-faster", "--read-timeout=-1","--config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online.conf", "--cmvn-config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online_cmvn.conf", "--max-active=7000", "--beam=15.0", "--lattice-beam=8.0", "--acoustic-scale=1", "--frame-subsampling-factor=3", "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/final.mdl", "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/HCLG.fst", "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/words.txt"]
+ENTRYPOINT ["/kaldi/dist/bin/online2-tcp-nnet3-decode-faster", \
+          "--read-timeout=-1", \
+          "--samp-freq=8000", \
+          "--frames-per-chunk=20", \
+          "--extra-left-context-initial=0", \
+          "--min-active=200","--max-active=7000", \
+          "--config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online.conf", \
+          "--cmvn-config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online_cmvn.conf", \
+          "--beam=15.0", \
+          "--lattice-beam=8.0", \
+          "--acoustic-scale=1", \
+          "--frame-subsampling-factor=3", \
+          "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/final.mdl", \
+          "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/HCLG.fst", \
+          "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/words.txt"]
