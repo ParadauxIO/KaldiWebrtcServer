@@ -21,15 +21,12 @@ RUN wget https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSIO
 RUN git clone https://github.com/kaldi-asr/kaldi /kaldi 
 
 # Install dependencies as set out in check_dependencies
-RUN apt-get -y install zlib1g bzip2 unzip sox gfortran libtool subversion python3 zlib1g-dev g++
-
-# Build OpenBLAS
-RUN /bin/bash /kaldi/tools/extras/install_openblas.sh
+RUN apt-get -y install zlib1g bzip2 unzip sox gfortran libtool subversion python3 zlib1g-dev g++ libopenblas-dev
 
 # Check dependencies
-RUN /bin/bash /kaldi/tools/extras/check_dependencies.sh --openblas-root="/kaldi/tools/OpenBLAS"
+RUN /bin/bash /kaldi/tools/extras/check_dependencies.sh --openblas-root="/usr/lib/aarch64-linux-gnu/openblas-pthread/"
 
-# Build Kaldi
+# # Build Kaldi
 RUN cd /kaldi/tools && make
 
 RUN mkdir -p /kaldi/build && cd /kaldi/build && \
@@ -38,22 +35,5 @@ RUN mkdir -p /kaldi/build && cd /kaldi/build && \
 
 RUN mkdir -p /
 
-ENTRYPOINT ["online2-tcp-nnet3-decode-faster --config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online.conf \
-   --cmvn-config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online_cmvn.conf \
-   --max-active=7000 \
-   --beam=15.0 \
-   --lattice-beam=8.0 \
-   --acoustic-scale=1 \
-   --frame-subsampling-factor=3 \
-   /kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/final.mdl \
-   /kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/HCLG.fst \
-   /kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/words.txt"]
-
-# online.conf 
-# online_cmvn.conf
-# final.mdl
-# HCLG.fst
-# words.txt
-
-# 
-
+# ENTRYPOINT [ "tail", "-f", "/dev/null" ]
+ENTRYPOINT ["/kaldi/dist/bin/online2-tcp-nnet3-decode-faster", "--read-timeout=-1","--config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online.conf", "--cmvn-config=/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/conf/online_cmvn.conf", "--max-active=7000", "--beam=15.0", "--lattice-beam=8.0", "--acoustic-scale=1", "--frame-subsampling-factor=3", "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample_online/final.mdl", "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/HCLG.fst", "/kaldi/model/chain/tdnn1i_sp_ep9_specaug_subsample/graph_CNnG+CnCB+wp_uniq-0.9-paracrawl+conll173gr/words.txt"]
